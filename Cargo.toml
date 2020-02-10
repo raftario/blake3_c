@@ -1,0 +1,12 @@
+[package]
+name = "blake3_c"
+version = "0.1.0"
+authors = ["Raphaël Thériault <raphael_theriault@outlook.com>"]
+edition = "2018"
+license = "MIT"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+blake3 = "0.1"
