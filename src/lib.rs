@@ -27,9 +27,7 @@ mod utils {
 
     #[inline(always)]
     pub fn free<T>(ptr: *mut T) {
-        if ptr.is_null() {
-            return;
-        }
+        assert!(!ptr.is_null());
         unsafe { Box::from_raw(ptr) };
     }
 }
@@ -39,6 +37,8 @@ use std::convert::TryInto;
 use utils::*;
 
 /// Construct a new BLAKE3 `Hasher` for the regular hash function.
+///
+/// # Signature
 ///
 /// ```c
 /// void* blake3_new()
@@ -51,9 +51,15 @@ pub extern "C" fn blake3_new() -> *mut Hasher {
 /// Construct a new BLAKE3 `Hasher` for the keyed hash function.
 /// The key is assumed to be 32 bytes long.
 ///
+/// # Signature
+///
 /// ```c
 /// void* blake3_new_keyed(uint8_t* key_ptr)
 /// ```
+///
+/// # Panics
+///
+/// Panics if `key_ptr` is null.
 #[no_mangle]
 pub extern "C" fn blake3_new_keyed(key_ptr: *const u8) -> *mut Hasher {
     let key = deref_slice(key_ptr, KEY_LEN);
@@ -62,9 +68,15 @@ pub extern "C" fn blake3_new_keyed(key_ptr: *const u8) -> *mut Hasher {
 
 /// Free a BLAKE3 `Hasher`.
 ///
+/// # Signature
+///
 /// ```c
 /// void blake3_free(void* ptr)
 /// ```
+///
+/// # Panics
+///
+/// Panics if `ptr` is null.
 #[no_mangle]
 pub extern "C" fn blake3_free(ptr: *mut Hasher) {
     free(ptr);
@@ -72,9 +84,15 @@ pub extern "C" fn blake3_free(ptr: *mut Hasher) {
 
 /// Reset a BLAKE3 `Hasher` to its initial state.
 ///
+/// # Signature
+///
 /// ```c
 /// void blake3_reset(void* ptr)
 /// ```
+///
+/// # Panics
+///
+/// Panics if `ptr` is null.
 #[no_mangle]
 pub extern "C" fn blake3_reset(ptr: *mut Hasher) {
     let hasher = deref_mut(ptr);
@@ -83,9 +101,15 @@ pub extern "C" fn blake3_reset(ptr: *mut Hasher) {
 
 /// Add input bytes to the hash state of a BLAKE3 `Hasher`.
 ///
+/// # Signature
+///
 /// ```c
 /// void blake3_update(void* ptr, uint8_t* const input_ptr, size_t input_len)
 /// ```
+///
+/// # Panics
+///
+/// Panics if `ptr` or `input_ptr` is null.
 #[no_mangle]
 pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_len: usize) {
     let hasher = deref_mut(ptr);
@@ -96,9 +120,15 @@ pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_le
 /// Finalize the hash state of a BLAKE3 `Hasher` fills the output array with the hash of the input.
 /// The `Hasher` isn't consumed in the process.
 ///
+/// # Signature
+///
 /// ```c
 /// void blake3_finalize(void* const ptr, uint8_t* output_ptr, size_t output_len)
 /// ```
+///
+/// # Panics
+///
+/// Panics if `ptr` or `output_ptr` is null.
 #[no_mangle]
 pub extern "C" fn blake3_finalize(ptr: *const Hasher, output_ptr: *mut u8, output_len: usize) {
     let hasher = deref(ptr);
