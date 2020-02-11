@@ -10,3 +10,8 @@ crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
 blake3 = "0.1"
+
+[profile.dev]
+panic = "abort"
+[profile.release]
+panic = "abort"
