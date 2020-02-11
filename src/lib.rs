@@ -61,7 +61,7 @@ pub extern "C" fn blake3_new_keyed(key_ptr: *const u8) -> *mut Hasher {
     Box::into_raw(Box::new(Hasher::new_keyed(key.try_into().unwrap())))
 }
 
-/// Frees a BLAKE3 `Hasher`.
+/// Free a BLAKE3 `Hasher`.
 ///
 /// ```c
 /// void blake3_free(void* ptr)
@@ -71,7 +71,7 @@ pub extern "C" fn blake3_free(ptr: *mut Hasher) {
     free(ptr);
 }
 
-/// Resets a BLAKE3 `Hasher` to its initial state.
+/// Reset a BLAKE3 `Hasher` to its initial state.
 ///
 /// ```c
 /// void blake3_reset(void* ptr)
@@ -82,7 +82,7 @@ pub extern "C" fn blake3_reset(ptr: *mut Hasher) {
     hasher.reset();
 }
 
-/// Adds input bytes to the hash state of a BLAKE3 `Hasher`.
+/// Add input bytes to the hash state of a BLAKE3 `Hasher`.
 ///
 /// ```c
 /// void blake3_update(void* ptr, uint8_t* const input_ptr, size_t input_len)
@@ -94,7 +94,7 @@ pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_le
     hasher.update(input);
 }
 
-/// Finalizes the hash state of a BLAKE3 `Hasher` fills the output array with the hash of the input.
+/// Finalize the hash state of a BLAKE3 `Hasher` fills the output array with the hash of the input.
 /// The `Hasher` isn't consumed in the process.
 ///
 /// ```
