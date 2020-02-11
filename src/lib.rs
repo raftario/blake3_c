@@ -1,27 +1,26 @@
 mod utils {
-    use blake3::Hasher;
     use std::slice;
 
     #[inline(always)]
-    pub fn deref<'a>(ptr: *const Hasher) -> &'a Hasher {
+    pub fn deref<'a, T>(ptr: *const T) -> &'a T {
         assert!(!ptr.is_null());
         unsafe { &*ptr }
     }
 
     #[inline(always)]
-    pub fn deref_mut<'a>(ptr: *mut Hasher) -> &'a mut Hasher {
+    pub fn deref_mut<'a, T>(ptr: *mut T) -> &'a mut T {
         assert!(!ptr.is_null());
         unsafe { &mut *ptr }
     }
 
     #[inline(always)]
-    pub fn deref_bytes<'a>(ptr: *const u8, len: usize) -> &'a [u8] {
+    pub fn deref_slice<'a, T>(ptr: *const T, len: usize) -> &'a [T] {
         assert!(!ptr.is_null());
         unsafe { slice::from_raw_parts(ptr, len) }
     }
 
     #[inline(always)]
-    pub fn deref_bytes_mut<'a>(ptr: *mut u8, len: usize) -> &'a mut [u8] {
+    pub fn deref_slice_mut<'a, T>(ptr: *mut T, len: usize) -> &'a mut [T] {
         assert!(!ptr.is_null());
         unsafe { slice::from_raw_parts_mut(ptr, len) }
     }
@@ -57,7 +56,7 @@ pub extern "C" fn blake3_new() -> *mut Hasher {
 /// ```
 #[no_mangle]
 pub extern "C" fn blake3_new_keyed(key_ptr: *const u8) -> *mut Hasher {
-    let key = deref_bytes(key_ptr, KEY_LEN);
+    let key = deref_slice(key_ptr, KEY_LEN);
     Box::into_raw(Box::new(Hasher::new_keyed(key.try_into().unwrap())))
 }
 
@@ -90,7 +89,7 @@ pub extern "C" fn blake3_reset(ptr: *mut Hasher) {
 #[no_mangle]
 pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_len: usize) {
     let hasher = deref_mut(ptr);
-    let input = deref_bytes(input_ptr, input_len);
+    let input = deref_slice(input_ptr, input_len);
     hasher.update(input);
 }
 
@@ -103,7 +102,7 @@ pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_le
 #[no_mangle]
 pub extern "C" fn blake3_finalize(ptr: *const Hasher, output_ptr: *mut u8, output_len: usize) {
     let hasher = deref(ptr);
-    let output = deref_bytes_mut(output_ptr, output_len);
+    let output = deref_slice_mut(output_ptr, output_len);
     if output_len == OUT_LEN {
         output.copy_from_slice(hasher.finalize().as_bytes());
     } else {
