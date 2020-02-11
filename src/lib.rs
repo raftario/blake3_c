@@ -39,28 +39,54 @@ use blake3::{Hasher, KEY_LEN, OUT_LEN};
 use std::convert::TryInto;
 use utils::*;
 
+/// Construct a new BLAKE3 `Hasher` for the regular hash function.
+///
+/// ```c
+/// void* blake3_new()
+/// ```
 #[no_mangle]
 pub extern "C" fn blake3_new() -> *mut Hasher {
     Box::into_raw(Box::new(Hasher::new()))
 }
 
+/// Construct a new BLAKE3 `Hasher` for the keyed hash function.
+/// The key is assumed to be 32 bytes long.
+///
+/// ```c
+/// void* blake3_new_keyed(uint8_t* key_ptr)
+/// ```
 #[no_mangle]
-pub extern "C" fn blake3_new_keyed(ptr: *const u8) -> *mut Hasher {
-    let key = deref_bytes(ptr, KEY_LEN);
+pub extern "C" fn blake3_new_keyed(key_ptr: *const u8) -> *mut Hasher {
+    let key = deref_bytes(key_ptr, KEY_LEN);
     Box::into_raw(Box::new(Hasher::new_keyed(key.try_into().unwrap())))
 }
 
+/// Frees a BLAKE3 `Hasher`.
+///
+/// ```c
+/// void blake3_free(void* ptr)
+/// ```
 #[no_mangle]
 pub extern "C" fn blake3_free(ptr: *mut Hasher) {
     free(ptr);
 }
 
+/// Resets a BLAKE3 `Hasher` to its initial state.
+///
+/// ```c
+/// void blake3_reset(void* ptr)
+/// ```
 #[no_mangle]
 pub extern "C" fn blake3_reset(ptr: *mut Hasher) {
     let hasher = deref_mut(ptr);
     hasher.reset();
 }
 
+/// Adds input bytes to the hash state of a BLAKE3 `Hasher`.
+///
+/// ```c
+/// void blake3_update(void* ptr, uint8_t* const input_ptr, size_t input_len)
+/// ```
 #[no_mangle]
 pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_len: usize) {
     let hasher = deref_mut(ptr);
@@ -68,6 +94,12 @@ pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_le
     hasher.update(input);
 }
 
+/// Finalizes the hash state of a BLAKE3 `Hasher` fills the output array with the hash of the input.
+/// The `Hasher` isn't consumed in the process.
+///
+/// ```
+/// void blake3_finalize(void* const ptr, uint8_t* output_ptr, size_t output_len)
+/// ```
 #[no_mangle]
 pub extern "C" fn blake3_finalize(ptr: *const Hasher, output_ptr: *mut u8, output_len: usize) {
     let hasher = deref(ptr);
