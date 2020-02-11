@@ -97,7 +97,7 @@ pub extern "C" fn blake3_update(ptr: *mut Hasher, input_ptr: *const u8, input_le
 /// Finalize the hash state of a BLAKE3 `Hasher` fills the output array with the hash of the input.
 /// The `Hasher` isn't consumed in the process.
 ///
-/// ```
+/// ```c
 /// void blake3_finalize(void* const ptr, uint8_t* output_ptr, size_t output_len)
 /// ```
 #[no_mangle]
